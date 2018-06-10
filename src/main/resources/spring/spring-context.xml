@@ -15,9 +15,11 @@
         <property name="locations">
             <list>
                 <value>classpath:mybatis/jdbc.properties</value>
+                <value>classpath:log/log.properties</value>
             </list>
         </property>
     </bean>
+
 
     <!--
         导入 其他 Spring 配置文件
