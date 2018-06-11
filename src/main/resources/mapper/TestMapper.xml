@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ssm.dao.TestMapper">
+
+    <!-- 用户信息关联表 -->
+    <resultMap id="UserInfoBaseResultMap" type="com.ssm.entity.UserInfo">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="pwd" property="pwd" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="delete_flag" property="deleteFlag" jdbcType="CHAR"/>
+        <result column="creater" property="creater" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="updater" property="updater" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+    </resultMap>
+    <!-- 权限信息关联表 -->
+    <resultMap id="PermissionInfoBaseResultMap" type="com.ssm.entity.PermissionInfo">
+        <id column="Id" property="id" jdbcType="VARCHAR"/>
+        <result column="pid" property="pid" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="unique_name" property="unique" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="CHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="is_visiable" property="isVisiable" jdbcType="CHAR"/>
+        <result column="sort_num" property="sortNum" jdbcType="INTEGER"/>
+        <result column="creater" property="creater" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="updater" property="updater" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+        <result column="parent_flag" property="parentFlag" jdbcType="BIT"/>
+    </resultMap>
+    <!-- 角色信息关联表 -->
+    <resultMap id="RoleInfoBaseResultMap" type="com.ssm.entity.RoleInfo">
+        <id column="Id" property="id" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="creater" property="creater" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="updater" property="updater" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+    </resultMap>
+
+    <!-- 根据用户查询密码 -->
+    <select id="selectPwdByName" resultType="string" parameterType="string">
+        SELECT pwd FROM tb_user tu WHERE tu.name=#{username} AND tu.is_delete='0'
+    </select>
+    <!-- 根据用户账号查询角色集合 -->
+    <select id="selectRolesByName" resultType="string" parameterType="string">
+        SELECT
+            tr.name
+        FROM
+            tb_role tr
+        WHERE
+            tr.id IN (
+                SELECT
+                  tur.role_id
+                FROM
+                  tb_user_role tur
+                WHERE
+                  tur.id = (
+                    SELECT
+                    id
+                    FROM
+                    TB_USER TU
+                    WHERE
+                    TU. NAME = #{username} AND tu.is_delete='0'
+                  )
+            )
+    </select>
+    <!-- 根据用户账号查询用戶權限集合标识 -->
+    <select id="selectHasPermissionsByName" resultType="string" parameterType="string">
+        SELECT
+          tp.unique_name
+        FROM
+          tb_permission tp
+        WHERE
+          tp.Id IN (
+            SELECT
+              trp.permission_id
+            FROM
+              tb_role_permission trp
+            WHERE
+              trp.role_id IN (
+                SELECT
+                  tr.id
+                FROM
+                  tb_role tr
+                WHERE
+                  tr.id IN (
+                    SELECT
+                      tur.role_id
+                    FROM
+                      tb_user_role tur
+                    WHERE
+                    tur.id = (
+                        SELECT
+                        id
+                        FROM
+                        TB_USER TU
+                        WHERE
+                        TU. NAME = 'admin'
+                    )
+                )
+            )
+        )
+    </select>
+    <!-- 根据用户名查询用户 -->
+    <select id="selectUserInfoByName" parameterType="string" resultMap="UserInfoBaseResultMap">
+        select tu.* from tb_user tu where tu.name = #{username}
+    </select>
+</mapper>

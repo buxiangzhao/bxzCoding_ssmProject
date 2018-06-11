@@ -2,11 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
@@ -23,7 +26,7 @@
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
         <property name="suffix" value=".jsp"/>
-        <property name="prefix" value="WEB-INF/view/"/>
+        <property name="prefix" value="/WEB-INF/view/"/>
     </bean>
 
     <!-- 静态文件目录 -->
@@ -37,5 +40,20 @@
         <property name="defaultEncoding" value="UTF-8"/>
         <property name="resolveLazily" value="true"/>
     </bean>
+
+    <!--
+        开启Shiro的注解(如@RequiresRoles，@RequiresPermissions) start，需借助SpringAOP扫描使用Shiro注解的类,并在必要时进行安全逻辑验证
+        @RequiresRoles("admin")
+        @RequestMapping("/hello2")
+        public String hello2() {
+            return "success";
+        }
+        -->
+    <!--表示代理类-->
+    <aop:config proxy-target-class="true"/>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+    <!-- 开启Shiro的注解end -->
 
 </beans>
