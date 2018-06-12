@@ -9,6 +9,7 @@ import com.ssm.entity.User;
 public interface HelloService {
 
 	String helloSave();
+
 	User helloSelect();
 
 }
